@@ -1,11 +1,12 @@
 import os
-from flask import Flask, g, jsonify, make_response, request
 import jwt
 
-# from dotenv import load_dotenv
-# load_dotenv()
+from flask import Flask, g, jsonify, make_response, request
 
 app = Flask(__name__)
+
+NOT_AUTHORIZED_CODE = 401
+SUCCESS_WITH_UPDATE = 201
 
 @app.route('/')
 def home():
@@ -13,7 +14,7 @@ def home():
         jsonify({
             'ping': 'poing',
         }),
-        200
+        201
     )
 
 @app.route('/api/v0/goods/return', methods=['POST'])
@@ -22,7 +23,7 @@ def return_goods():
     token = request.headers.get('Authorization').split(' ').pop()
     payload = {}
 
-    response_code = 401
+    response_code = NOT_AUTHORIZED_CODE
     response_message = {
         'Response': 'Fail',
         'Reason': 'Not authorizaed'
@@ -38,7 +39,7 @@ def return_goods():
         if 'Jane Doe' != payload.get('name', 'Jane Doe') :
             response_message['Response'] = 'Success'
             response_message['Reason'] = 'Action complete'
-            response_code = 200
+            response_code = SUCCESS_WITH_UPDATE
         else:
             response_code, response_message = field_validation(request.json)
     except:
@@ -59,14 +60,14 @@ def field_validation(doc):
         'Response': 'Success',
         'Reason': 'Action complete'
     }
-    response_code = 201
+    response_code = SUCCESS_WITH_UPDATE
 
     if bool(fields_compare):
         response_message = {
             'Response': 'Fail',
             'Reason': 'Invalid format'
         }
-        response_code = 401
+        response_code = NOT_AUTHORIZED_CODE
 
     return response_code, response_message
 
@@ -76,5 +77,5 @@ def get_secret_keys():
         jsonify({
             'key': os.environ.get('SECRET_KEY')
         }),
-        200
+        SUCCESS_WITH_UPDATE
     )
