@@ -1,10 +1,9 @@
 import os
-from dotenv import load_dotenv
-
 from flask import Flask, g, jsonify, make_response, request
 import jwt
 
-load_dotenv()
+# from dotenv import load_dotenv
+# load_dotenv()
 
 app = Flask(__name__)
 
