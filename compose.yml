@@ -1,6 +1,7 @@
 services:
   app:
     image: sitdh/pyhello
+    restart: unless-stopped
     working_dir: /app
     volumes:
       - .:/app
