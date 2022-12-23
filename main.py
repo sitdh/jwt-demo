@@ -35,13 +35,13 @@ def return_goods():
             os.environ.get('SECRET_KEY', 'super-secret-token'),
             algorithms=['HS256']
         )
-
-        if 'Jane Doe' != payload.get('name', 'Jane Doe') :
+        
+        response_code, response_message, is_all_mandatory_fields_exists = field_validation(request.json)
+        if is_all_mandatory_fields_exists and 'Arokaya Labs' != payload.get('iss', 'Arokaya Labs'):
             response_message['response'] = 'Success'
             response_message['reason'] = 'Action complete'
             response_code = SUCCESS_WITH_UPDATE
-        else:
-            response_code, response_message = field_validation(request.json)
+            
     except:
         pass
 
@@ -61,6 +61,8 @@ def field_validation(doc):
         'reason': 'Action complete'
     }
     response_code = SUCCESS_WITH_UPDATE
+    
+    MESSAGE_VALID = True
 
     if bool(fields_compare):
         response_message = {
@@ -68,8 +70,9 @@ def field_validation(doc):
             'reason': 'Invalid format'
         }
         response_code = UNAUTHORIZED_CODE
+        MESSAGE_VALID = False
 
-    return response_code, response_message
+    return response_code, response_message, MESSAGE_VALID
 
 @app.route('/api/v0/secret-key', methods=['GET'])
 def get_secret_keys():
