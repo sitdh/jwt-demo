@@ -36,8 +36,18 @@ def return_goods():
             algorithms=['HS256']
         )
         
-        response_code, response_message, is_all_mandatory_fields_exists = field_validation(request.json)
-        if is_all_mandatory_fields_exists and 'Arokaya Labs' != payload.get('iss', 'Arokaya Labs'):
+        response_code, response_message, is_all_mandatory_request_fields_exists = field_validation(
+            request.json, 
+            ['doc_no', 'refer_doc_no', 'request_type',]
+        )
+        _, _, is_all_mandatory_payload_fields_exists = field_validation(
+            payload, 
+            ['iss', 'sub', 'aud', 'iat', 'exp',]
+        )
+        
+        if (is_all_mandatory_fields_exists and is_all_mandatory_payload_fields_exists) \
+            and 'Arokaya Labs' != payload.get('iss', 'Arokaya Labs'):
+            
             response_message['response'] = 'Success'
             response_message['reason'] = 'Action complete'
             response_code = SUCCESS_WITH_UPDATE
@@ -50,11 +60,11 @@ def return_goods():
         response_code
     )
 
-def field_validation(doc):
-    fields_compare = set([
+def field_validation(doc, fields):
+    fields_compare = set(
         # Mandatory fields
-        'iss', 'sub', 'aud', 'iat', 'exp',
-    ]).difference(set(doc.keys()))
+        fields
+    ).difference(set(doc.keys()))
 
     response_message = {
         'response': 'Success',
