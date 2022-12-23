@@ -5,7 +5,7 @@ from flask import Flask, g, jsonify, make_response, request
 
 app = Flask(__name__)
 
-NOT_AUTHORIZED_CODE = 401
+UNAUTHORIZED_CODE = 401
 SUCCESS_WITH_UPDATE = 201
 
 @app.route('/')
@@ -23,10 +23,10 @@ def return_goods():
     token = request.headers.get('Authorization').split(' ').pop()
     payload = {}
 
-    response_code = NOT_AUTHORIZED_CODE
+    response_code = UNAUTHORIZED_CODE
     response_message = {
-        'Response': 'Fail',
-        'Reason': 'Not authorizaed'
+        'response': 'Failure',
+        'reason': 'Unauthorizaed'
     }
 
     try:
@@ -37,8 +37,8 @@ def return_goods():
         )
 
         if 'Jane Doe' != payload.get('name', 'Jane Doe') :
-            response_message['Response'] = 'Success'
-            response_message['Reason'] = 'Action complete'
+            response_message['response'] = 'Success'
+            response_message['reason'] = 'Action complete'
             response_code = SUCCESS_WITH_UPDATE
         else:
             response_code, response_message = field_validation(request.json)
@@ -53,21 +53,21 @@ def return_goods():
 def field_validation(doc):
     fields_compare = set([
         # Mandatory fields
-        'doc_no', 'reference_doc_no', 'request_type'
+        'iss', 'sub', 'aud', 'iat', 'exp',
     ]).difference(set(doc.keys()))
 
     response_message = {
-        'Response': 'Success',
-        'Reason': 'Action complete'
+        'response': 'Success',
+        'reason': 'Action complete'
     }
     response_code = SUCCESS_WITH_UPDATE
 
     if bool(fields_compare):
         response_message = {
-            'Response': 'Fail',
-            'Reason': 'Invalid format'
+            'response': 'Failure',
+            'reason': 'Invalid format'
         }
-        response_code = NOT_AUTHORIZED_CODE
+        response_code = UNAUTHORIZED_CODE
 
     return response_code, response_message
 
